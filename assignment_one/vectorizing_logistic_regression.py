@@ -17,7 +17,7 @@ def non_vectorized_logistic_regression(X, y, n_x, m, learning_rate, iterations):
     w = np.zeros((n_x, 1))  # Initialize weights
     b = 0  # Initialize bias
     
-    print(f'{n_x}, {m}')
+    print(f'X is a ({n_x}, {m}) matrix')
 
     # Train for 1000 iterations
     for iter in range(iterations):
@@ -37,28 +37,38 @@ def non_vectorized_logistic_regression(X, y, n_x, m, learning_rate, iterations):
 
             z_i = wt_xi + db # Linear function
             # a_i = sigma(z_i)
-            a_i = 1 / (1 + np.exp(-z_i)) # Sigmoid function
+            a_i = 1 / (1 + np.exp(z_i)) # Sigmoid function
             
             # Cost function for this example
             # (-[(y_i)log(a_i)+(1-y_i)log(1-a_i)])
+            # print(f'y[0, {i}] = {y[0,i]}\tnp.log10(a_i) = {np.log10(a_i)}\t(1 - y[0, {i}]) = {1-y[0,i]}\tnp.log10(1 - a_i) = {np.log10(1 - a_i)}')
+
             J += -(y[0, i] * np.log10(a_i) + (1 - y[0, i]) * np.log10(1 - a_i))
+
+            # print(f'y[0, i] * np.log10(a_i) = {y[0, i] * np.log10(a_i)}\t(1 - y[0, i]) * np.log10(1 - a_i) = {(1 - y[0, i]) * np.log10(1 - a_i)}')
+            # print(f'J = {J}')
 
             # Backward propagation (gradients)
             dz_i = a_i - y[0, i]  # Scalar gradient
 
             # dw += X[i] * dz_i 
-            for x_i in range(n_x): # Gradient for weights
-                dw[x_i, 0] += X[x_i, i] * dz_i
+            for row in range(n_x): # Gradient for weights
+                # print(f'wt_xi = {wt_xi}\tdb = {db}\tz_i={z_i}\ta_i = {a_i}\ty[0, {i}] = {y[0, i]}\tdz_i = {dz_i}')
+                # print(f'dw[{row}, 0] = {dw[row, 0]}\tX[{row}, {i}] = {X[row, i]}')
+                dw[row, 0] += X[row, i] * dz_i
 
-            db += X # Gradient for bias
+            db += dz_i # Gradient for bias
 
         # Average the cost and gradients
-        J /= m # J 
+        # J
+        J = J / m 
         
-        for x_i in range(n_x): # dw
-            dw[x_i, 0] /= m
+        # dw
+        for row in range(n_x):
+            dw[row, 0] = dw[row, 0] / m
 
-        db /= m # db 
+        # db
+        db = db / m
         
 
         # Update weights and bias
@@ -108,5 +118,5 @@ vec_time = time.time() - start_time
 print(f"Vectorized Logistic Regression Time: {vec_time:.6f} seconds")
 
 # Compare results
-print(f"Cost from non-vectorized: {J_non_vec[0]:.6f}")
+print(f"Cost from non-vectorized: {J_non_vec:.6f}")
 # print(f"Cost from vectorized: {J_vec:.6f}")
